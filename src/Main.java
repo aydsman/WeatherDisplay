@@ -1,13 +1,9 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 
-        // User input for city
-        System.out.print("Type in a city --> ");
-        Scanner s = new Scanner(System.in);
-        String userCity = s.nextLine();
+        String userCity = "Windsor";
 
         // Store URL in String
         String url = "https://api.worldweatheronline.com/premium/v1/weather.ashx?q="
@@ -23,6 +19,7 @@ public class Main {
             CountryOBJ country = API.getCountry();
             country.setCity(userCity);
 
+            new WeatherGUI(weatherListAPI, country);
             Display display = new Display(weatherListAPI, country);
             display.print();
 
