@@ -12,9 +12,10 @@ public class Display {
     }
 
     public void print() {
-        System.out.printf("Country: " + country.getCountry() + " || Year: " + weatherUtil.getYear(0));
-        System.out.println("Region: " + country.getRegion() + " || Month: " + weatherUtil.getMonthName());
-        System.out.println("City: " + country.getCity() + " || Today's date: " + weatherUtil.getDay(0));
-
+        System.out.println("City: " + country.getCity());
+        System.out.println("Country: " + country.getCountry() + "\n-----------------------------------------");
+        for (int i = 0; i < 7; i++) {
+            System.out.println("Today's date: " + weatherUtil.getMonthName(i) + " " + weatherUtil.getDay(i) + " || Temp: " + weatherUtil.getTemp(i) + "°C");
+        }
     }
 }
