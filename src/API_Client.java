@@ -34,36 +34,35 @@ public class API_Client {
         ArrayList<WeatherDateOBJ> weatherList = new ArrayList<>();
 
         JSONObject root = new JSONObject(rawJsonString);
-        JSONObject data = root.getJSONObject("data");
 
-        // Get location string from API response
-        JSONArray requestArr = data.getJSONArray("request");
-        String location = requestArr.getJSONObject(0).getString("query"); // e.g., "Springfield, United States"
+        // City name
+        String city = root.getJSONObject("city").getString("name");
+        String countryName = root.getJSONObject("city").getString("country");
 
-        // Split location into city and country
-        String[] parts = location.split(",\\s*"); // Split by comma + optional space
-        String city = parts[0];                   // First part is city
-        String countryName = parts.length > 1 ? parts[1] : "Unknown"; // Second part is country (if present)
-
-        // Store into CountryOBJ
         country.setCity(city);
         country.setCountry(countryName);
 
-        // Get forecast array
-        JSONArray weatherArray = data.getJSONArray("weather");
+        // 3-hour interval forecasts
+        JSONArray list = root.getJSONArray("list");
 
-        for (int i = 0; i < weatherArray.length(); i++) {
+        // Pick one forecast per day (every 8 entries)
+        for (int i = 0; i < list.length(); i += 8) {
 
-            JSONObject dayObj = weatherArray.getJSONObject(i);
+            JSONObject obj = list.getJSONObject(i);
 
-            String[] dateParts = dayObj.getString("date").split("-");
+            String dateText = obj.getString("dt_txt");
+            // Format: 2026-01-29 12:00:00
+
+            String[] dateParts = dateText.split(" ")[0].split("-");
             int year = Integer.parseInt(dateParts[0]);
             int month = Integer.parseInt(dateParts[1]);
             int day = Integer.parseInt(dateParts[2]);
 
-            double temp = dayObj.getDouble("avgtempC");
+            double temp = obj.getJSONObject("main").getDouble("temp");
 
-            WeatherDateOBJ weather = new WeatherDateOBJ(year, month, day, temp);
+            WeatherDateOBJ weather =
+                    new WeatherDateOBJ(year, month, day, temp);
+
             weatherList.add(weather);
         }
 
