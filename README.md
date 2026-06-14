@@ -1,61 +1,39 @@
 # Weather Display
 
-[![Build executables](https://github.com/aydsman/WeatherDisplay/actions/workflows/build.yml/badge.svg)](https://github.com/aydsman/WeatherDisplay/actions/workflows/build.yml)
+A desktop weather app built with Java and Swing. Search any city and see its
+current conditions plus a 5-day forecast in a clean, card-based interface with
+customisable themes.
 
-A desktop weather app (Java + Swing) with a card-based 5-day forecast, light/dark mode,
-multiple colour themes, and a saved-cities sidebar. Forecast data comes from the
-OpenWeatherMap API.
+## Features
 
-## Download and run (no build needed)
+- **City search** with friendly error messages when a city isn't found.
+- **5-day forecast** shown as cards (day, date, weather icon, temperature),
+  picked for the time of day closest to the city's current local time.
+- **Saved cities sidebar** — add cities you check often, then click to reload
+  them. Hover a saved city to reveal a minus button that removes it.
+- **Themes** — light and dark mode, plus 13 colour themes (Normal, Summer,
+  Night Sky, Forest, Ocean, Sunset, Lavender, Crimson, Slate, Mint, Gold,
+  Grape, Coral).
+- **Saved preferences** — your theme and saved cities persist between sessions.
 
-Every push to GitHub builds downloadable executables automatically via GitHub Actions.
+## How it works
 
-1. Go to the repo's **Actions** tab on GitHub.
-2. Open the most recent **Build executables** run.
-3. Under **Artifacts**, download one of:
-   - **WeatherDisplay-windows-exe** — a `.zip` containing `WeatherDisplay.exe` with a
-     bundled Java runtime. Unzip it and double-click `WeatherDisplay.exe`.
-     No Java installation required.
-   - **WeatherApp-jar** — a single `WeatherApp.jar` that runs anywhere Java 25+ is
-     installed. Double-click it, or run `java -jar WeatherApp.jar`.
+The app fetches forecast data from the [OpenWeatherMap](https://openweathermap.org/)
+API, parses the JSON response, and displays it through a Swing interface.
 
-Tip: pushing a version tag (for example `v1.0`) also publishes these files on the
-repo's **Releases** page for easy public download.
+| Part | Responsibility |
+|------|----------------|
+| `Main.java` | Launches the app |
+| `API_Client.java` | Calls the weather API and parses the JSON |
+| `WeatherController.java` | Coordinates a search and reports errors |
+| `Weather_Helper.java`, `WeatherDateOBJ.java`, `CountryOBJ.java` | Weather data model and helpers |
+| `Preferences.java` | Reads/writes theme and saved cities to JSON |
+| `ui/` | All interface code: themes, hero panel, forecast cards, sidebar, settings |
 
-```bash
-git tag v1.0
-git push origin v1.0
-```
+Preferences are stored at `~/.weatherdisplay/preferences.json`.
 
-## Build it yourself
+## Tech
 
-Requires JDK 25 and Maven.
-
-```bash
-# Build the self-contained runnable JAR -> target/WeatherApp.jar
-mvn package
-
-# Run it
-java -jar target/WeatherApp.jar
-```
-
-To create a native Windows `.exe` locally (JDK includes `jpackage`):
-
-```powershell
-mkdir staging
-copy target\WeatherApp.jar staging\
-jpackage --type app-image --name WeatherDisplay --input staging --main-jar WeatherApp.jar --main-class Main --dest dist
-# Result: dist\WeatherDisplay\WeatherDisplay.exe
-```
-
-## Project layout
-
-| Path | Purpose |
-|------|---------|
-| `src/Main.java` | Application entry point |
-| `src/API_Client.java`, `src/WeatherController.java` | Fetch and parse forecast data |
-| `src/Weather_Helper.java`, `src/WeatherDateOBJ.java`, `src/CountryOBJ.java` | Data model and helpers |
-| `src/Preferences.java` | Saves theme + saved cities to JSON |
-| `src/ui/` | All UI: themes, hero, forecast cards, sidebar, settings |
-
-User preferences are stored at `~/.weatherdisplay/preferences.json`.
+- Java 25 (Swing for the UI)
+- [org.json](https://github.com/stleary/JSON-java) for JSON parsing
+- Maven for building
