@@ -18,13 +18,15 @@ public class CityListPanel extends RoundedPanel implements Themed {
     private final JPanel listContainer;
     private final Consumer<String> onSelect;
     private final Runnable onAdd;
+    private final Consumer<String> onRemove;
     private AppTheme theme;
     private List<String> cities = new ArrayList<>();
 
-    public CityListPanel(Consumer<String> onSelect, Runnable onAdd) {
+    public CityListPanel(Consumer<String> onSelect, Runnable onAdd, Consumer<String> onRemove) {
         super(20);
         this.onSelect = onSelect;
         this.onAdd = onAdd;
+        this.onRemove = onRemove;
 
         setLayout(new BorderLayout(0, 14));
         setBorder(BorderFactory.createEmptyBorder(20, 18, 20, 18));
@@ -65,15 +67,14 @@ public class CityListPanel extends RoundedPanel implements Themed {
         listContainer.removeAll();
 
         for (String city : cities) {
-            ListButton button = new ListButton(city, false);
-            button.addActionListener(e -> onSelect.accept(city));
+            ListButton button = new ListButton(city, false, () -> onSelect.accept(city));
+            button.setRemovable(() -> onRemove.accept(city));
             configure(button);
             listContainer.add(button);
             listContainer.add(Box.createVerticalStrut(8));
         }
 
-        ListButton addButton = new ListButton("+   Add a city", true);
-        addButton.addActionListener(e -> onAdd.run());
+        ListButton addButton = new ListButton("+   Add a city", true, onAdd);
         configure(addButton);
         listContainer.add(addButton);
 

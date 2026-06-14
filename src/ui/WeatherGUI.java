@@ -42,7 +42,7 @@ public class WeatherGUI implements ThemeManager.ThemeListener {
         root.setLayout(new BorderLayout());
 
         searchBar = new SearchBarPanel();
-        sidebar = new CityListPanel(this::loadCity, this::addCurrentCity);
+        sidebar = new CityListPanel(this::loadCity, this::addCurrentCity, this::removeCity);
         heroPanel = new HeroPanel();
         forecastRow = new ForecastRowPanel();
         forecastTitle = new JLabel("5-Day Forecast");
@@ -119,6 +119,12 @@ public class WeatherGUI implements ThemeManager.ThemeListener {
             prefs.save();
             sidebar.setCities(prefs.getCities());
         }
+    }
+
+    private void removeCity(String city) {
+        prefs.removeCity(city);
+        prefs.save();
+        sidebar.setCities(prefs.getCities());
     }
 
     private void performSearch() {

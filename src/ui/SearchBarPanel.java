@@ -20,7 +20,7 @@ public class SearchBarPanel extends JPanel implements Themed {
         setLayout(new BorderLayout(16, 0));
         setOpaque(false);
 
-        titleLabel = new JLabel("⛅  Weather Display");
+        titleLabel = new JLabel("Weather Display");
         searchPanel = new RoundedPanel(16);
         cityLabel = new JLabel("City");
         inputField = new JTextField();

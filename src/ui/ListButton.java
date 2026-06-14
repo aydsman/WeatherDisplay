@@ -16,11 +16,15 @@ public class ListButton extends JButton implements Themed {
     private AppTheme theme;
     private boolean hover;
     private final boolean accentStyle;
+    private final Runnable onClick;
+    private Runnable onRemove;
     private final int radius = 12;
+    private final int removeBox = 36;
 
-    public ListButton(String text, boolean accentStyle) {
+    public ListButton(String text, boolean accentStyle, Runnable onClick) {
         super(text);
         this.accentStyle = accentStyle;
+        this.onClick = onClick;
         setHorizontalAlignment(SwingConstants.LEFT);
         setFocusPainted(false);
         setBorderPainted(false);
@@ -40,7 +44,25 @@ public class ListButton extends JButton implements Themed {
                 hover = false;
                 repaint();
             }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (onRemove != null && isInRemoveIcon(e.getX())) {
+                    onRemove.run();
+                } else {
+                    onClick.run();
+                }
+            }
         });
+    }
+
+    public void setRemovable(Runnable onRemove) {
+        this.onRemove = onRemove;
+        setBorder(BorderFactory.createEmptyBorder(10, 14, 10, removeBox));
+    }
+
+    private boolean isInRemoveIcon(int x) {
+        return x >= getWidth() - removeBox;
     }
 
     @Override
@@ -58,7 +80,22 @@ public class ListButton extends JButton implements Themed {
             }
         }
         g2.dispose();
+
         super.paintComponent(g);
+
+        if (onRemove != null && hover && theme != null) {
+            Graphics2D g3 = (Graphics2D) g.create();
+            g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int cx = getWidth() - removeBox / 2 - 2;
+            int cy = getHeight() / 2;
+            int r = 9;
+            g3.setColor(theme.accent);
+            g3.fillOval(cx - r, cy - r, r * 2, r * 2);
+            g3.setColor(theme.buttonText);
+            g3.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g3.drawLine(cx - 4, cy, cx + 4, cy);
+            g3.dispose();
+        }
     }
 
     @Override
