@@ -1,44 +1,47 @@
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class WeatherController {
 
-    private GUI_Helper gui;
     private ArrayList<WeatherDateOBJ> listGlobal;
     private CountryOBJ countryGlobal;
-
-    private String userIn;
+    private String errorMessage;
 
     public WeatherController(String userIn) {
-        String user = userIn; // User input
-        this.userIn = userIn;
-        System.out.println("USER ENTERED: [" + userIn + "]");
+        String user = userIn;
 
-
-        // Store URL in String
         String url =
                 "https://api.openweathermap.org/data/2.5/forecast?q="
                         + user.replace(" ", "%20")
                         + "&units=metric&appid=b8b84f7e7f71b55dd008cf1b3aee2a0b";
 
         try {
-            // API Logic
-            API_Client API = new API_Client(); // Create API object
-            String APIjson = API.fetchData(url); // Store raw JSON data
-            //System.out.println(APIjson); // Printing json data (debugging)
-            ArrayList<WeatherDateOBJ> weatherListAPI = API.parseWeather(APIjson);
-            listGlobal = weatherListAPI; // Copy this list onto global list (for get method)
+            API_Client API = new API_Client();
+            String APIjson = API.fetchData(url);
 
-            // Copy country object from API class
-            CountryOBJ country = API.getCountry();
-            countryGlobal = country; // Copy countryOBJ onto global
-            country.setCity(user);
+            JSONObject root = new JSONObject(APIjson);
+            String code = String.valueOf(root.opt("cod"));
+            if (!"200".equals(code)) {
+                errorMessage = "\"" + userIn.trim() + "\" was not found. Check the spelling and try again.";
+                return;
+            }
+
+            listGlobal = API.parseWeather(APIjson);
+            countryGlobal = API.getCountry();
 
         } catch (Exception e) {
-            System.out.println("Error fetching or parsing weather data: " + e.getMessage());
-            e.printStackTrace();
+            errorMessage = "Could not load weather. Check your internet connection and try again.";
         }
     }
 
+    public boolean isSuccess() {
+        return listGlobal != null && !listGlobal.isEmpty() && countryGlobal != null;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
     public CountryOBJ getCountryGlobal() {
         return countryGlobal;
     }

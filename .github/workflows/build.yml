@@ -1,0 +1,62 @@
+name: Build executables
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Build runnable JAR
+        run: mvn -B package
+
+      - name: Create Windows app (.exe) with jpackage
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path staging | Out-Null
+          Copy-Item target/WeatherApp.jar staging/
+          jpackage `
+            --type app-image `
+            --name WeatherDisplay `
+            --input staging `
+            --main-jar WeatherApp.jar `
+            --main-class Main `
+            --dest dist
+          Compress-Archive -Path dist/WeatherDisplay/* -DestinationPath WeatherDisplay-windows.zip -Force
+
+      - name: Upload runnable JAR (download from this run)
+        uses: actions/upload-artifact@v4
+        with:
+          name: WeatherApp-jar
+          path: target/WeatherApp.jar
+
+      - name: Upload Windows executable (download from this run)
+        uses: actions/upload-artifact@v4
+        with:
+          name: WeatherDisplay-windows-exe
+          path: WeatherDisplay-windows.zip
+
+      - name: Attach files to GitHub Release (on version tags)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            target/WeatherApp.jar
+            WeatherDisplay-windows.zip

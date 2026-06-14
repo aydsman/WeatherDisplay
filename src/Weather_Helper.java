@@ -1,5 +1,9 @@
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
-
+import java.util.Locale;
 public class Weather_Helper {
     ArrayList<WeatherDateOBJ> weatherList;
     ArrayList<String> monthList = new ArrayList<>(
@@ -38,6 +42,22 @@ public class Weather_Helper {
     public double getTemp(int day) {
         WeatherDateOBJ weatherOBJ = weatherList.get(day);
         return weatherOBJ.temp;
+    }
+
+    public String getCondition(int day) {
+        return weatherList.get(day).getCondition();
+    }
+
+    public String getDayOfWeek(int day) {
+        WeatherDateOBJ weatherOBJ = weatherList.get(day);
+        LocalDate date = LocalDate.of(weatherOBJ.year, weatherOBJ.month, weatherOBJ.day);
+        return date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault());
+    }
+
+    public String getTimeLabel(int day) {
+        WeatherDateOBJ weatherOBJ = weatherList.get(day);
+        LocalTime time = LocalTime.of(weatherOBJ.hour, weatherOBJ.minute);
+        return time.format(DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault()));
     }
 
 }

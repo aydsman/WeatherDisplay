@@ -11,7 +11,26 @@ public class CountryOBJ {
     }
 
     public void setCity(String city) {
-        this.city = city;
+        if (city == null || city.isBlank()) {
+            this.city = city == null ? null : city.trim();
+            return;
+        }
+
+        String[] words = city.trim().split("\\s+");
+        StringBuilder formatted = new StringBuilder();
+
+        for (int i = 0; i < words.length; i++) {
+            if (i > 0) {
+                formatted.append(' ');
+            }
+            String word = words[i];
+            formatted.append(Character.toUpperCase(word.charAt(0)));
+            if (word.length() > 1) {
+                formatted.append(word.substring(1).toLowerCase());
+            }
+        }
+
+        this.city = formatted.toString();
     }
 
     public String getCity() {
